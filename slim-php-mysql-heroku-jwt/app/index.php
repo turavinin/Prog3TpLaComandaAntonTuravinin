@@ -15,6 +15,7 @@ require_once './db/AccesoDatos.php';
 require_once './middlewares/AutentificadorJWT.php';
 
 require_once './controllers/EmpleadosController.php';
+require_once './controllers/ProductosController.php';
 
 // Load ENV
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
@@ -32,6 +33,11 @@ $app->group('/empleados', function (RouteCollectorProxy $group) {
   $group->get('[/]', \EmpleadosController::class . ':TraerTodos');
   $group->get('/{usuario}', \EmpleadosController::class . ':TraerUno');
   $group->post('[/]', \EmpleadosController::class . ':CargarUno');
+});
+
+$app->group('/productos', function (RouteCollectorProxy $group) {
+  $group->get('[/]', \ProductosController::class . ':TraerTodos');
+  $group->post('[/]', \ProductosController::class . ':CargarUno');
 });
 
 // JWT
