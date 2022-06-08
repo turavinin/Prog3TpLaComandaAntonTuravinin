@@ -131,17 +131,34 @@ ALTER TABLE `EstadoPedidos`
 -- PEDIDOS
 CREATE TABLE `Pedidos` (
   `Id` int(11) NOT NULL,
-  `IdProducto` int(11) NOT NULL,
-  `IdEmpleado` int(11) NOT NULL,
   `IdEstado` int(11) NOT NULL,
   `IdMesa` int(11) NOT NULL,
+  `Codigo` varchar(5) NOT NULL,
   `FechaAlta` DATETIME(6) NOT NULL,
-  `FechaFin` DATETIME(6) NOT NULL,
-  `TiempoPreparacionTotal` int(11) NOT NULL
+  `FechaFin` DATETIME(6) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 ALTER TABLE `Pedidos`
   ADD PRIMARY KEY (`Id`);
+  
+ ALTER TABLE `Pedidos`
+	MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=0;
+
+-- PEDIDOS PRODUCTOS
+CREATE TABLE `PedidosProductos` (
+  `Id` int(11) NOT NULL,
+  `CodigoPedido` varchar(5) NOT NULL,  
+  `IdProducto` int(11) NOT NULL,
+  `FechaAlta` DATETIME(6) NOT NULL,
+  `FechaFin` DATETIME(6) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+ALTER TABLE `PedidosProductos`
+  ADD PRIMARY KEY (`Id`);
+  
+ ALTER TABLE `PedidosProductos`
+	MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=0;
+
 
 -- ESTADO MESAS
 CREATE TABLE `EstadoMesas` (
@@ -165,12 +182,15 @@ ALTER TABLE `EstadoMesas`
 -- MESAS
 CREATE TABLE `Mesas` (
   `Id` int(11) NOT NULL,
+  `Codigo` varchar(5) NOT NULL,
   `EstadoId` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 ALTER TABLE `Mesas`
   ADD PRIMARY KEY (`Id`);
 
+  ALTER TABLE `Mesas`
+	MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=0;
   
 -- ENCUESTA
 CREATE TABLE `Encuestas` (

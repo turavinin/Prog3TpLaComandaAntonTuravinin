@@ -38,6 +38,21 @@ class Mesa
         return $codigo;
     }
 
+    public static function ActualizarEstadoMesa($idMesa, $estadoId)
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("UPDATE 
+        mesas
+        SET
+        EstadoId = :estadoId
+        WHERE
+        Id = :idMesa");
+
+        $consulta->bindValue(':estadoId', $estadoId, PDO::PARAM_INT);
+        $consulta->bindValue(':idMesa', $idMesa, PDO::PARAM_INT);
+        $consulta->execute();
+    }
+
     public static function GenerarCodigo($largo)
     {
         return substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, $largo); 
