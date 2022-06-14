@@ -58,7 +58,7 @@ class Empleado
         E.Clave as clave,
         EE.Estado as estado,
         TE.Tipo as tipoEmpleado
-        FROM empleados
+        FROM empleados E
         INNER JOIN estadoempleado EE ON EE.Id = E.IdEstado
         INNER JOIN tipoempleado TE ON TE.Id = E.IdTipoEmpleado
         WHERE usuario = :usuario");

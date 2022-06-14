@@ -6,8 +6,30 @@ class AutentificadorJWT
 {
     private static $claveSecreta = 'T3sT$JWT';
     private static $tipoEncriptacion = ['HS256'];
+    private static $idSocio = 5;
 
-    public static function CrearToken($datos)
+    public static function CrearTokenEmpleado($datos)
+    {
+        try 
+        {
+            $empleado = new Empleado();
+            $empleadoExistente = $empleado->ObtenerUsuario($datos['usuario']);
+
+            if($empleadoExistente == null || $empleadoExistente->clave != $datos['contraseña'])
+            {
+                throw new Exception("Usuario o contraseña inválida");
+            }
+
+            $datos += ['idTipoEmpleado' => $empleadoExistente->idTipoEmpleado];
+            return AutentificadorJWT::CrearToken($datos, self::$claveSecreta);
+        } 
+        catch (\Exception $ex) 
+        {
+            throw $ex;
+        }
+    }
+
+    private static function CrearToken($datos, $clave)
     {
         $ahora = time();
         $payload = array(
@@ -17,28 +39,33 @@ class AutentificadorJWT
             'data' => $datos,
             'app' => "JWT"
         );
-        return JWT::encode($payload, self::$claveSecreta);
+        return JWT::encode($payload, $clave);
     }
+
 
     public static function VerificarToken($token)
     {
-        if (empty($token)) {
+        if (empty($token)) 
+        {
             throw new Exception("El token esta vacio.");
         }
-        try {
-            $decodificado = JWT::decode(
-                $token,
-                self::$claveSecreta,
-                self::$tipoEncriptacion
-            );
-        } catch (Exception $e) {
+
+        try 
+        {
+            $decodificado = JWT::decode($token, self::$claveSecreta, self::$tipoEncriptacion);
+        } 
+        catch (Exception $e) 
+        {
             throw $e;
         }
-        if ($decodificado->aud !== self::Aud()) {
+
+        if ($decodificado->aud !== self::Aud()) 
+        {
             throw new Exception("No es el usuario valido");
         }
-    }
 
+        return $decodificado;
+    }
 
     public static function ObtenerPayLoad($token)
     {
@@ -65,11 +92,16 @@ class AutentificadorJWT
     {
         $aud = '';
 
-        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+        if (!empty($_SERVER['HTTP_CLIENT_IP'])) 
+        {
             $aud = $_SERVER['HTTP_CLIENT_IP'];
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        } 
+        elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) 
+        {
             $aud = $_SERVER['HTTP_X_FORWARDED_FOR'];
-        } else {
+        } 
+        else 
+        {
             $aud = $_SERVER['REMOTE_ADDR'];
         }
 

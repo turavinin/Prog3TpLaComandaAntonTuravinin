@@ -13,6 +13,7 @@ require __DIR__ . '/../vendor/autoload.php';
 
 require_once './db/AccesoDatos.php';
 require_once './middlewares/AutentificadorJWT.php';
+require_once './middlewares/Logger.php';
 
 require_once './controllers/EmpleadosController.php';
 require_once './controllers/ProductosController.php';
@@ -35,7 +36,7 @@ $app->group('/empleados', function (RouteCollectorProxy $group) {
   $group->get('[/]', \EmpleadosController::class . ':TraerTodos');
   $group->get('/{usuario}', \EmpleadosController::class . ':TraerUno');
   $group->post('[/]', \EmpleadosController::class . ':CargarUno');
-});
+}) ->add(\Logger::class . ':VerificarCredenciales');
 
 $app->group('/productos', function (RouteCollectorProxy $group) {
   $group->get('[/]', \ProductosController::class . ':TraerTodos');
@@ -52,25 +53,52 @@ $app->group('/pedidos', function (RouteCollectorProxy $group) {
   $group->post('[/]', \PedidosController::class . ':CargarUno');
 });
 
-// JWT
-$app->group('/jwt', function (RouteCollectorProxy $group) {
+// JWT PROPIO
+$app->group('/autentificacion', function (RouteCollectorProxy $group) {
 
   $group->post('/crearToken', function (Request $request, Response $response) {    
     $parametros = $request->getParsedBody();
 
     $usuario = $parametros['usuario'];
-    $perfil = $parametros['perfil'];
-    $alias = $parametros['alias'];
+    $contraseña = $parametros['contraseña'];
 
-    $datos = array('usuario' => $usuario, 'perfil' => $perfil, 'alias' => $alias);
+    $datos = array('usuario' => $usuario, 'contraseña' => $contraseña);
 
-    $token = AutentificadorJWT::CrearToken($datos);
-    $payload = json_encode(array('jwt' => $token));
+    try 
+    {
+      $token = AutentificadorJWT::CrearTokenEmpleado($datos);
+      $payload = json_encode(array('usuario' => $usuario, 'jwt' => $token));
+    } 
+    catch (Exception $e) 
+    {
+      $payload = json_encode(array('error' => $e->getMessage()));
+    }
 
     $response->getBody()->write($payload);
     return $response
       ->withHeader('Content-Type', 'application/json');
   });
+});
+
+// JWT
+$app->group('/jwt', function (RouteCollectorProxy $group) {
+
+  // $group->post('/crearToken', function (Request $request, Response $response) {    
+  //   $parametros = $request->getParsedBody();
+
+  //   $usuario = $parametros['usuario'];
+  //   $perfil = $parametros['perfil'];
+  //   $alias = $parametros['alias'];
+
+  //   $datos = array('usuario' => $usuario, 'perfil' => $perfil, 'alias' => $alias);
+
+  //   // $token = AutentificadorJWT::CrearToken($datos);
+  //   $payload = json_encode(array('jwt' => $token));
+
+  //   $response->getBody()->write($payload);
+  //   return $response
+  //     ->withHeader('Content-Type', 'application/json');
+  // });
 
   $group->get('/devolverPayLoad', function (Request $request, Response $response) {
     $header = $request->getHeaderLine('Authorization');
