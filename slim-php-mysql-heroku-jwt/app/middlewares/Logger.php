@@ -33,12 +33,10 @@ class Logger
         {
             $errores .= $ex->getMessage();
         }
-        finally
-        {
-            $payload = json_encode(array("error" => $errores));
-            $response->getBody()->write($payload);
-            return $response->withHeader('Content-Type', 'application/json');
-        }
+        
+        $payload = json_encode(array("error" => $errores));
+        $response->getBody()->write($payload);
+        return $response->withHeader('Content-Type', 'application/json');
     }
 
     private static function VerificarAccesoEndpoint($method, $path, $token)
@@ -58,7 +56,9 @@ class Logger
     {
         switch($path)
         {
-
+            case '/empleados':
+                return Logger::UsuarioAutorizado($token);
+                break;
         }
     }
 
