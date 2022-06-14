@@ -15,7 +15,7 @@ class AutentificadorJWT
             $empleado = new Empleado();
             $empleadoExistente = $empleado->ObtenerUsuario($datos['usuario']);
 
-            if($empleadoExistente == null || $empleadoExistente->clave != $datos['contraseña'])
+            if($empleadoExistente == null || !password_verify($datos['contraseña'], $empleadoExistente->clave))
             {
                 throw new Exception("Usuario o contraseña inválida");
             }
@@ -61,7 +61,7 @@ class AutentificadorJWT
 
         if ($decodificado->aud !== self::Aud()) 
         {
-            throw new Exception("No es el usuario valido");
+            throw new Exception("Usuario no autorizado");
         }
 
         return $decodificado;
@@ -109,5 +109,15 @@ class AutentificadorJWT
         $aud .= gethostname();
 
         return sha1($aud);
+    }
+
+    public static function GetTokenDelHeader($header)
+    {
+        if (empty($header)) 
+        {
+            throw new Exception("Autorizacion vacía");
+        }
+
+        return trim(explode("Bearer", $header)[1]);
     }
 }
