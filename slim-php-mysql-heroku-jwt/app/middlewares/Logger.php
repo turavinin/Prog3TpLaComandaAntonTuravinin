@@ -6,7 +6,11 @@ require_once './middlewares/AutentificadorJWT.php';
 
 class Logger
 {
-    private static $idSocio = 5;
+    private static $idSocio = 1;
+    private static $idCervecero = 2;
+    private static $idCocinero = 3;
+    private static $idMozo = 4;
+    private static $idBartender = 5;
 
     public static function VerificarCredenciales($request, $handler)
     {
@@ -59,6 +63,9 @@ class Logger
             case '/empleados':
                 return Logger::UsuarioAutorizado($token);
                 break;
+            case '/productos':
+                return Logger::UsuarioAutorizado($token);
+                break;
         }
     }
 
@@ -67,50 +74,25 @@ class Logger
         switch($path)
         {
             case '/empleados':
-                return Logger::UsuarioAutorizado($token, self::$idSocio);
+                return Logger::UsuarioAutorizado($token, array(self::$idSocio));
+                break;
+            case '/productos':
+                return Logger::UsuarioAutorizado($token, array(self::$idSocio, self::$idMozo));
                 break;
         }
     }
 
-    private static function UsuarioAutorizado($token, $idTipoEmpleado = null)
+    private static function UsuarioAutorizado($token, $arrayIds = null)
     {
         $esValido = true;
         $decodificado = AutentificadorJWT::VerificarToken($token);
         $id = $decodificado->data->idTipoEmpleado;
 
-        if($idTipoEmpleado != null)
+        if($arrayIds != null && count($arrayIds) > 0)
         {
-            $esValido = $id == $idTipoEmpleado;
+            $esValido = in_array($id, $arrayIds);
         }
 
         return $esValido;
     }
-
-    // private static function VerifcarPostasd($path, $token)
-    // {
-    //     $response = new Response();
-
-    //     $body = $request->getParsedBody();
-    //     $headers = $request->getHeaders();
-    //     $headerAuth = $request->getHeaderLine('Authorization');
-    //     $token = trim(explode("Bearer", $headerAuth)[1]);
-    //     $error = 'ninguno';
-    //     $decodificado = 'ninguno';
-        
-
-    //     try 
-    //     {
-    //         $decodificado = AutentificadorJWT::VerificarToken($token);
-    //     } 
-    //     catch (Exception $ex) 
-    //     {
-    //         $error = $ex;
-    //     }
-        
-    //     $payload = json_encode(array("body" => $body, "header" => $headers, "decodificado" => $decodificado, "errores" => $error));
-
-    //     $response->getBody()->write($payload);
-    //     return $response
-    //       ->withHeader('Content-Type', 'application/json');
-    // }
 }

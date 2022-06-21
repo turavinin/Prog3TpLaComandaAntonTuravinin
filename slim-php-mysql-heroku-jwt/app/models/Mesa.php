@@ -22,6 +22,24 @@ class Mesa
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'Mesa');
     }
 
+    public static function ObtenerPorId($idMesa)
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("SELECT 
+        M.Id as id,
+        M.Codigo as codigo,
+        M.EstadoId as estadoId,
+        EM.Estado as estadoMesa
+        FROM mesas M
+        INNER JOIN estadomesas EM ON EM.Id = M.EstadoId
+        WHERE M.Id = :idMesa");
+
+        $consulta->bindValue(':idMesa', $idMesa, PDO::PARAM_INT);
+        $consulta->execute();
+
+        return $consulta->fetchObject('Mesa');
+    }
+
     public function CrearMesa()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();

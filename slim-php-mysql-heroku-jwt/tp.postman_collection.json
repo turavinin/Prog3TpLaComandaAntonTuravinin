@@ -1,0 +1,74 @@
+{
+	"info": {
+		"_postman_id": "5f21ab11-93cb-4862-a299-32ba8d5d3bd8",
+		"name": "tp",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "14303924"
+	},
+	"item": [
+		{
+			"name": "GET EMPLEADOS",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:666/empleados/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "666",
+					"path": [
+						"empleados",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST EMPLEADO",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "idTipoEmpleado",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "idEstado",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "usuario",
+							"value": "juansito",
+							"type": "text"
+						},
+						{
+							"key": "clave",
+							"value": "123asd",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:666/empleados",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "666",
+					"path": [
+						"empleados"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

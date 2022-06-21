@@ -14,24 +14,31 @@ class PedidosController extends Pedido implements IApiUsable
         $idMesa = $parametros['idMesa'];
         $idsProductos = $parametros['idsProductos'];
         $arrayIdsProductos = explode(",", $idsProductos);
+
+        $payload = null;
+
+        $erroresValidacion = Pedido::ValidarPedidos($idMesa, $arrayIdsProductos);
+
+        if(count($erroresValidacion) == 0)
+
         $listaProductosPedidos = Producto::ObtenerProductosPorIds($arrayIdsProductos);
+        $listaPedidoEmpleado = Empleado::ObtenerEmpleadosPorProductos($listaProductosPedidos);
 
         $pedido = new Pedido();
         $pedido->idMesa = $idMesa;
         $pedido->fechaAlta = date('Y-m-d H:i:s');
-        $pedido->idEstado = 1;
         $pedido->minutosTotalesPreparacion = Producto::CalcularMinutosTotalesPreparacion($listaProductosPedidos);
 
         $codigoPedido = $pedido->CrearPedido();
-        PedidoProducto::CrearPedidosPorCodigoConProductos($codigoPedido, $listaProductosPedidos);
+        PedidoProducto::CrearPedidosPorCodigoConProductos($codigoPedido, $listaPedidoEmpleado);
         Mesa::ActualizarEstadoMesa($idMesa, 1);
 
         $payload = json_encode(array("mensaje" => "Pedido creado con exito", "codigo" => $codigoPedido));
+        
 
         $response->getBody()->write($payload);
         return $response
           ->withHeader('Content-Type', 'application/json');
-
     }
 
     public function TraerUno($request, $response, $args)

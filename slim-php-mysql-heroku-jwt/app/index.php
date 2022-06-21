@@ -41,7 +41,7 @@ $app->group('/empleados', function (RouteCollectorProxy $group) {
 $app->group('/productos', function (RouteCollectorProxy $group) {
   $group->get('[/]', \ProductosController::class . ':TraerTodos');
   $group->post('[/]', \ProductosController::class . ':CargarUno');
-});
+}) ->add(\Logger::class . ':VerificarCredenciales');;
 
 $app->group('/mesas', function (RouteCollectorProxy $group) {
   $group->get('[/]', \MesasController::class . ':TraerTodos');

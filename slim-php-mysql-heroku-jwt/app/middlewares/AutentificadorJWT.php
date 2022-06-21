@@ -6,7 +6,6 @@ class AutentificadorJWT
 {
     private static $claveSecreta = 'T3sT$JWT';
     private static $tipoEncriptacion = ['HS256'];
-    private static $idSocio = 5;
 
     public static function CrearTokenEmpleado($datos)
     {
