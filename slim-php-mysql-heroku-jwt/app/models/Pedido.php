@@ -75,9 +75,16 @@ class Pedido
     {
         $mensajesError = array();
 
-        if(!is_numeric($idMesa) || Mesa::ObtenerPorId($idMesa) == null)
+        $mesa = Mesa::ObtenerPorId($idMesa);
+
+        if(!is_numeric($idMesa) || $mesa == null)
         {
             array_push($mensajesError, "La mesa es invalida o no existe.");
+        }
+
+        if($mesa != null && $mesa->estadoId != 4)
+        {
+            array_push($mensajesError, "La mesa no esta disponible.");
         }
 
         foreach ($listaProductosIds as $key => $idProducto) 
@@ -89,5 +96,40 @@ class Pedido
         }
 
         return $mensajesError;
+    }
+
+    private static function PedidoToCSV($pedido)
+    {
+        return "$pedido->id,$pedido->idMesa,$pedido->codigo,$pedido->minutosTotalesPreparacion,$pedido->fechaAlta". PHP_EOL;
+    }
+
+    public static function GuardarPedidoToCSV($pedidos, $path)
+    {
+        
+        $pedidosCSV = array();
+
+        foreach ($pedidos as $key => $pedido) 
+        {
+            array_push($pedidosCSV, Pedido::PedidoToCSV($pedido));
+        }
+
+        $totalPedidos = count($pedidosCSV);
+
+        if($totalPedidos > 0)
+        {
+            $file = fopen($path, "wb");
+    
+            foreach($pedidosCSV as $key=>$pedidoString)
+            {
+                fwrite($file, $pedidoString);
+                
+                if($key != $totalPedidos - 1) 
+                {
+                    fwrite($file, "". PHP_EOL);
+                }
+            }
+        
+            fclose($file);
+        }
     }
 }

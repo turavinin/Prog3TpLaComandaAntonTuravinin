@@ -1,6 +1,7 @@
 <?php
 error_reporting(-1);
 ini_set('display_errors', 1);
+date_default_timezone_set('America/Argentina/Buenos_Aires');
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -36,22 +37,24 @@ $app->group('/empleados', function (RouteCollectorProxy $group) {
   $group->get('[/]', \EmpleadosController::class . ':TraerTodos');
   $group->get('/{usuario}', \EmpleadosController::class . ':TraerUno');
   $group->post('[/]', \EmpleadosController::class . ':CargarUno');
-}) ->add(\Logger::class . ':VerificarCredenciales');
+})->add(\Logger::class . ':VerificarCredenciales');
 
 $app->group('/productos', function (RouteCollectorProxy $group) {
   $group->get('[/]', \ProductosController::class . ':TraerTodos');
   $group->post('[/]', \ProductosController::class . ':CargarUno');
-}) ->add(\Logger::class . ':VerificarCredenciales');;
+})->add(\Logger::class . ':VerificarCredenciales');
 
 $app->group('/mesas', function (RouteCollectorProxy $group) {
   $group->get('[/]', \MesasController::class . ':TraerTodos');
   $group->post('[/]', \MesasController::class . ':CargarUno');
-});
+})->add(\Logger::class . ':VerificarCredenciales');
 
 $app->group('/pedidos', function (RouteCollectorProxy $group) {
+  $group->get('[/]', \PedidosController::class . ':TraerTodos');
   $group->get('/{codigo}', \PedidosController::class . ':TraerUno');
+  $group->get('/csv/descarga', \PedidosController::class . ':DescargarCSV');
   $group->post('[/]', \PedidosController::class . ':CargarUno');
-});
+})->add(\Logger::class . ':VerificarCredenciales');
 
 // JWT PROPIO
 $app->group('/autentificacion', function (RouteCollectorProxy $group) {

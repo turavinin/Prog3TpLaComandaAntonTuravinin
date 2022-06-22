@@ -66,6 +66,15 @@ class Logger
             case '/productos':
                 return Logger::UsuarioAutorizado($token);
                 break;
+            case '/mesas':
+                return Logger::UsuarioAutorizado($token);
+                break;
+            case '/pedidos':
+                return Logger::UsuarioAutorizado($token, array(self::$idSocio, self::$idCervecero, self::$idCocinero, self::$idBartender));
+                break;
+            case '/pedidos/csv/descarga':
+                return Logger::UsuarioAutorizado($token);
+                break;
         }
     }
 
@@ -77,6 +86,12 @@ class Logger
                 return Logger::UsuarioAutorizado($token, array(self::$idSocio));
                 break;
             case '/productos':
+                return Logger::UsuarioAutorizado($token, array(self::$idSocio, self::$idMozo));
+                break;
+            case '/mesas':
+                return Logger::UsuarioAutorizado($token, array(self::$idSocio));
+                break;
+            case '/pedidos':
                 return Logger::UsuarioAutorizado($token, array(self::$idSocio, self::$idMozo));
                 break;
         }

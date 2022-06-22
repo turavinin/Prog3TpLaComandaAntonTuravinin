@@ -22,11 +22,17 @@ class PedidoProducto
         PP.CodigoPedido as codigoPedido,
         PP.IdProducto as idProducto,
         PR.Descripcion as producto,
+        PP.IdEstado as idEstado,
+        EPP.Estado as estado,
+        PP.IdEmpleado as idEmpleado,
+        E.Usuario as empleado,
         PR.MinutosPreparacion as minutosPreparacion,
         PP.FechaAlta as fechaAlta,
         PP.FechaFin as fechaFin
         FROM pedidosproductos PP
-        INNER JOIN productos PR ON PR.Id = PP.IdProducto");
+        INNER JOIN productos PR ON PR.Id = PP.IdProducto
+        INNER JOIN estadopedidosproductos EPP ON EPP.Id = PP.IdEstado
+        INNER JOIN empleados E ON E.Id = PP.IdEmpleado");
         $consulta->execute();
 
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'PedidoProducto');

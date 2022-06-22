@@ -17,28 +17,38 @@ class PedidosController extends Pedido implements IApiUsable
 
         $payload = null;
 
-        $erroresValidacion = Pedido::ValidarPedidos($idMesa, $arrayIdsProductos);
+        try 
+        {
+          $erroresValidacion = Pedido::ValidarPedidos($idMesa, $arrayIdsProductos);
 
-        if(count($erroresValidacion) == 0)
+          if(count($erroresValidacion) > 0)
+          {
+            throw new Exception(json_encode(array('Errores de validacion' => $erroresValidacion)));
+          }
 
-        $listaProductosPedidos = Producto::ObtenerProductosPorIds($arrayIdsProductos);
-        $listaPedidoEmpleado = Empleado::ObtenerEmpleadosPorProductos($listaProductosPedidos);
+          $listaProductosPedidos = Producto::ObtenerProductosPorIds($arrayIdsProductos);
+          $listaPedidoEmpleado = Empleado::ObtenerEmpleadosPorProductos($listaProductosPedidos);
 
-        $pedido = new Pedido();
-        $pedido->idMesa = $idMesa;
-        $pedido->fechaAlta = date('Y-m-d H:i:s');
-        $pedido->minutosTotalesPreparacion = Producto::CalcularMinutosTotalesPreparacion($listaProductosPedidos);
-
-        $codigoPedido = $pedido->CrearPedido();
-        PedidoProducto::CrearPedidosPorCodigoConProductos($codigoPedido, $listaPedidoEmpleado);
-        Mesa::ActualizarEstadoMesa($idMesa, 1);
-
-        $payload = json_encode(array("mensaje" => "Pedido creado con exito", "codigo" => $codigoPedido));
-        
-
-        $response->getBody()->write($payload);
-        return $response
-          ->withHeader('Content-Type', 'application/json');
+          $pedido = new Pedido();
+          $pedido->idMesa = $idMesa;
+          $pedido->fechaAlta = date('Y-m-d H:i:s');
+          $pedido->minutosTotalesPreparacion = Producto::CalcularMinutosTotalesPreparacion($listaProductosPedidos);
+  
+          $codigoPedido = $pedido->CrearPedido();
+          PedidoProducto::CrearPedidosPorCodigoConProductos($codigoPedido, $listaPedidoEmpleado);
+          Mesa::ActualizarEstadoMesa($idMesa, 1);
+  
+          $payload = json_encode(array("mensaje" => "Pedido creado con exito", "codigo" => $codigoPedido));
+        } 
+        catch (Exception $ex) 
+        {
+          $payload = $ex->getMessage();
+        }
+        finally
+        {
+          $response->getBody()->write($payload);
+          return $response->withHeader('Content-Type', 'application/json');
+        }
     }
 
     public function TraerUno($request, $response, $args)
@@ -57,11 +67,34 @@ class PedidosController extends Pedido implements IApiUsable
     public function TraerTodos($request, $response, $args)
     {
         $lista = Pedido::ObtenerTodos();
-        $lista->listaProductosPedidos = PedidoProducto::ObtenerTodos();
+
+        if(count($lista) > 0)
+        {
+          foreach ($lista as $key => $pedido) 
+          {
+            $pedido->listaProductosPedidos = PedidoProducto::ObtenerPorCodigoPedido($pedido->codigo);
+          }
+        }
+
         $payload = json_encode(array("listaPedidos" => $lista));
 
         $response->getBody()->write($payload);
         return $response
           ->withHeader('Content-Type', 'application/json');
+    }
+
+    public function DescargarCSV($request, $response, $args)
+    {
+
+      $lista = Pedido::ObtenerTodos();
+      // $lista->listaProductosPedidos = PedidoProducto::ObtenerTodos();
+
+      Pedido::GuardarPedidoToCSV($lista, "./pedidos.csv");
+
+
+      $payload = json_encode(array("se hizo" => "si"));
+
+      $response->getBody()->write($payload);
+      return $response->withHeader('Content-Type', 'application/json');
     }
 }
