@@ -20,6 +20,9 @@ require_once './controllers/EmpleadosController.php';
 require_once './controllers/ProductosController.php';
 require_once './controllers/MesasController.php';
 require_once './controllers/PedidosController.php';
+require_once './controllers/ClientesController.php';
+require_once './controllers/PedidoProductoController.php';
+require_once './controllers/EncuestaController.php';
 
 // Load ENV
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
@@ -31,32 +34,7 @@ $app = AppFactory::create();
 // Add error middleware
 $app->addErrorMiddleware(true, true, true);
 
-
-// Routes
-$app->group('/empleados', function (RouteCollectorProxy $group) {
-  $group->get('[/]', \EmpleadosController::class . ':TraerTodos');
-  $group->get('/{usuario}', \EmpleadosController::class . ':TraerUno');
-  $group->post('[/]', \EmpleadosController::class . ':CargarUno');
-})->add(\Logger::class . ':VerificarCredenciales');
-
-$app->group('/productos', function (RouteCollectorProxy $group) {
-  $group->get('[/]', \ProductosController::class . ':TraerTodos');
-  $group->post('[/]', \ProductosController::class . ':CargarUno');
-})->add(\Logger::class . ':VerificarCredenciales');
-
-$app->group('/mesas', function (RouteCollectorProxy $group) {
-  $group->get('[/]', \MesasController::class . ':TraerTodos');
-  $group->post('[/]', \MesasController::class . ':CargarUno');
-})->add(\Logger::class . ':VerificarCredenciales');
-
-$app->group('/pedidos', function (RouteCollectorProxy $group) {
-  $group->get('[/]', \PedidosController::class . ':TraerTodos');
-  $group->get('/{codigo}', \PedidosController::class . ':TraerUno');
-  $group->get('/csv/descarga', \PedidosController::class . ':DescargarCSV');
-  $group->post('[/]', \PedidosController::class . ':CargarUno');
-})->add(\Logger::class . ':VerificarCredenciales');
-
-// JWT PROPIO
+// JWT
 $app->group('/autentificacion', function (RouteCollectorProxy $group) {
 
   $group->post('/crearToken', function (Request $request, Response $response) {    
@@ -83,79 +61,49 @@ $app->group('/autentificacion', function (RouteCollectorProxy $group) {
   });
 });
 
-// JWT
-$app->group('/jwt', function (RouteCollectorProxy $group) {
+// API
+$app->group('/empleados', function (RouteCollectorProxy $group) {
+  $group->get('[/]', \EmpleadosController::class . ':TraerTodos');
+  $group->get('/{usuario}', \EmpleadosController::class . ':TraerUno');
+  $group->post('[/]', \EmpleadosController::class . ':CargarUno');
+})->add(\Logger::class . ':VerificarCredenciales');
 
-  // $group->post('/crearToken', function (Request $request, Response $response) {    
-  //   $parametros = $request->getParsedBody();
+$app->group('/cliente', function (RouteCollectorProxy $group) {
+  $group->post('[/]', \ClientesController::class . ':CargarUno')->add(\Logger::class . ':VerificarCredenciales');;
+  $group->get('/pedido', \ClientesController::class . ':PedidoTiempoPreparacion');
+});
 
-  //   $usuario = $parametros['usuario'];
-  //   $perfil = $parametros['perfil'];
-  //   $alias = $parametros['alias'];
+$app->group('/mesas', function (RouteCollectorProxy $group) {
+  $group->get('[/]', \MesasController::class . ':TraerTodos');
+  $group->get('/disponibles', \MesasController::class . ':TraerDisponible');
+  $group->get('/estadistica/usadas', \MesasController::class . ':ObtenerMesasMasUsadas');
+  $group->post('[/]', \MesasController::class . ':CargarUno');
+  $group->post('/estado', \MesasController::class . ':CambiarMesaServida');
+})->add(\Logger::class . ':VerificarCredenciales');
 
-  //   $datos = array('usuario' => $usuario, 'perfil' => $perfil, 'alias' => $alias);
+$app->group('/productos', function (RouteCollectorProxy $group) {
+  $group->get('[/]', \ProductosController::class . ':TraerTodos');
+  $group->post('[/]', \ProductosController::class . ':CargarUno');
+})->add(\Logger::class . ':VerificarCredenciales');
 
-  //   // $token = AutentificadorJWT::CrearToken($datos);
-  //   $payload = json_encode(array('jwt' => $token));
+$app->group('/pedidos', function (RouteCollectorProxy $group) {
+  $group->get('[/]', \PedidosController::class . ':TraerTodos');
+  $group->get('/{codigo}', \PedidosController::class . ':TraerUno');
+  // $group->get('/csv/descarga', \PedidosController::class . ':DescargarCSV');
+  $group->post('[/]', \PedidosController::class . ':CargarUno');
+  $group->post('/cobrar', \PedidosController::class . ':Cobrar');
+  $group->post('/estado/cerrar', \PedidosController::class . ':CerrarPedidoMesa');
+})->add(\Logger::class . ':VerificarCredenciales');
 
-  //   $response->getBody()->write($payload);
-  //   return $response
-  //     ->withHeader('Content-Type', 'application/json');
-  // });
+$app->group('/pedidos-productos', function (RouteCollectorProxy $group) {
+  $group->get('/estado', \PedidoProductoController::class . ':ObtenerProductosListos');
+  $group->get('/estado/empleado', \PedidoProductoController::class . ':ProductosPendientesEmpleado');
+  $group->post('/estado/empleado', \PedidoProductoController::class . ':CambiarEstadoEmpleado');
+})->add(\Logger::class . ':VerificarCredenciales');
 
-  $group->get('/devolverPayLoad', function (Request $request, Response $response) {
-    $header = $request->getHeaderLine('Authorization');
-    $token = trim(explode("Bearer", $header)[1]);
-
-    try {
-      $payload = json_encode(array('payload' => AutentificadorJWT::ObtenerPayLoad($token)));
-    } catch (Exception $e) {
-      $payload = json_encode(array('error' => $e->getMessage()));
-    }
-
-    $response->getBody()->write($payload);
-    return $response
-      ->withHeader('Content-Type', 'application/json');
-  });
-
-  $group->get('/devolverDatos', function (Request $request, Response $response) {
-    $header = $request->getHeaderLine('Authorization');
-    $token = trim(explode("Bearer", $header)[1]);
-
-    try {
-      $payload = json_encode(array('datos' => AutentificadorJWT::ObtenerData($token)));
-    } catch (Exception $e) {
-      $payload = json_encode(array('error' => $e->getMessage()));
-    }
-
-    $response->getBody()->write($payload);
-    return $response
-      ->withHeader('Content-Type', 'application/json');
-  });
-
-  $group->get('/verificarToken', function (Request $request, Response $response) 
-  {
-    $header = $request->getHeaderLine('Authorization');
-    $token = trim(explode("Bearer", $header)[1]);
-    $esValido = false;
-
-    try 
-    {
-      AutentificadorJWT::verificarToken($token);
-      $esValido = true;
-    } catch (Exception $e) {
-      $payload = json_encode(array('error' => $e->getMessage()));
-    }
-
-    if ($esValido) 
-    {
-      $payload = json_encode(array('valid' => $esValido));
-    }
-
-    $response->getBody()->write($payload);
-    return $response
-      ->withHeader('Content-Type', 'application/json');
-  });
+$app->group('/encuesta', function (RouteCollectorProxy $group) {
+  $group->post('[/]', \EncuestaController::class . ':AltaEncuesta');
+  $group->get('[/]', \EncuestaController::class . ':MejoresEncuestas');
 });
 
 $app->run();

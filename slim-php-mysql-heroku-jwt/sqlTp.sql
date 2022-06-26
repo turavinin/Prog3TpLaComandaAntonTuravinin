@@ -110,22 +110,22 @@ ALTER TABLE `Productos`
 ALTER TABLE `Productos`
 	MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 	
--- ESTADO PEDIDOS
-CREATE TABLE `EstadoPedidos` (
+-- ESTADO PEDIDOS PRODUCTOS
+CREATE TABLE `EstadoPedidosProductos` (
   `Id` int(11) NOT NULL,
   `Estado` varchar(100) COLLATE utf8_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-INSERT INTO `EstadoPedidos` (`Id`, `Estado`) VALUES
+INSERT INTO `EstadoPedidosProductos` (`Id`, `Estado`) VALUES
 (1, 'Pendiente'),
 (2, 'En Preparacion'),
 (3, 'Listo Para Serviir'),
 (4, 'Entregado');
 
-ALTER TABLE `EstadoPedidos`
+ALTER TABLE `EstadoPedidosProductos`
   ADD PRIMARY KEY (`Id`);
   
-ALTER TABLE `EstadoPedidos`
+ALTER TABLE `EstadoPedidosProductos`
 	MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 	
 -- PEDIDOS
@@ -134,6 +134,7 @@ CREATE TABLE `Pedidos` (
   `IdMesa` int(11) NOT NULL,
   `Codigo` varchar(5) NOT NULL,
   `MinutosTotalesPreparacion` int(100) NOT NULL,
+  `Foto` varchar(100) NOT NULL,
   `FechaAlta` DATETIME(6) NOT NULL,
   `FechaFin` DATETIME(6)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -151,6 +152,7 @@ CREATE TABLE `PedidosProductos` (
   `CodigoPedido` varchar(5) NOT NULL,  
   `IdProducto` int(11) NOT NULL,
   `IdEstado` int(11) NOT NULL,
+  `IdEmpleado` int(11) NOT NULL,
   `FechaAlta` DATETIME(6) NOT NULL,
   `FechaFin` DATETIME(6)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -219,6 +221,7 @@ ALTER TABLE `Encuestas`
 CREATE TABLE `Clientes` (
   `Id` int(11) NOT NULL,
   `IdPedido` int(11) NOT NULL,
+  `CodigoPedido` varchar(100) NOT NULL,
   `IdEncuesta` int(11) NOT NULL,
   `Nombre` varchar(100) COLLATE utf8_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

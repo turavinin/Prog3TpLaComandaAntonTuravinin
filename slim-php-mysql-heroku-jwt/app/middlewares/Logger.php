@@ -61,20 +61,36 @@ class Logger
         switch($path)
         {
             case '/empleados':
-                return Logger::UsuarioAutorizado($token);
+                return Logger::UsuarioAutorizado($token, array(self::$idSocio, self::$idMozo));
                 break;
             case '/productos':
-                return Logger::UsuarioAutorizado($token);
+                return Logger::UsuarioAutorizado($token, array(self::$idSocio, self::$idMozo));
                 break;
             case '/mesas':
-                return Logger::UsuarioAutorizado($token);
+                return Logger::UsuarioAutorizado($token, array(self::$idSocio, self::$idMozo));
+                break;
+            case '/mesas/disponibles':
+                return Logger::UsuarioAutorizado($token, array(self::$idSocio, self::$idMozo));
                 break;
             case '/pedidos':
-                return Logger::UsuarioAutorizado($token, array(self::$idSocio, self::$idCervecero, self::$idCocinero, self::$idBartender));
+                return Logger::UsuarioAutorizado($token, array(self::$idSocio));
                 break;
             case '/pedidos/csv/descarga':
                 return Logger::UsuarioAutorizado($token);
                 break;
+            case '/pedidos-productos/estado/empleado':
+                return Logger::UsuarioAutorizado($token, array(self::$idSocio, self::$idCervecero, self::$idCocinero, self::$idBartender));
+                break;
+            case '/pedidos-productos/estado':
+                return Logger::UsuarioAutorizado($token, array(self::$idSocio, self::$idMozo));
+                break;
+            case '/encuesta':
+                return Logger::UsuarioAutorizado($token, array(self::$idSocio));
+                break;
+            case '/mesas/estadistica/usadas':
+                return Logger::UsuarioAutorizado($token, array(self::$idSocio));
+                break;
+                
         }
     }
 
@@ -91,8 +107,23 @@ class Logger
             case '/mesas':
                 return Logger::UsuarioAutorizado($token, array(self::$idSocio));
                 break;
+            case '/mesas/estado':
+                return Logger::UsuarioAutorizado($token, array(self::$idSocio, self::$idMozo));
+                break;
             case '/pedidos':
                 return Logger::UsuarioAutorizado($token, array(self::$idSocio, self::$idMozo));
+                break;
+            case '/pedidos/cobrar':
+                return Logger::UsuarioAutorizado($token, array(self::$idSocio, self::$idMozo));
+                break;
+            case '/pedidos/estado/cerrar':
+                return Logger::UsuarioAutorizado($token, array(self::$idSocio));
+                break;
+            case '/cliente':
+                return Logger::UsuarioAutorizado($token, array(self::$idSocio, self::$idMozo));
+                break;
+            case '/pedidos-productos/estado/empleado':
+                return Logger::UsuarioAutorizado($token, array(self::$idSocio, self::$idCervecero, self::$idCocinero, self::$idBartender));
                 break;
         }
     }
