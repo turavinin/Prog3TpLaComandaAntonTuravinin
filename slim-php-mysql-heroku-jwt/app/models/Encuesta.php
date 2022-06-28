@@ -46,7 +46,7 @@ class Encuesta
             array_push($mensajesError, "Puntuacion Cocinero es invalida");
         }
 
-        if(empty(str_replace(' ', '', $encuesta->comentarios)) || strlen($encuesta->comentario) > 100)
+        if(empty(str_replace(' ', '', $encuesta->comentarios)) || strlen($encuesta->comentarios) > 100)
         {
             array_push($mensajesError, "El comentario es invalido");
         }
@@ -58,13 +58,12 @@ class Encuesta
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta("INSERT INTO 
-        encuestas (IdMesa, IdPedido, IdEmpleado, PuntuacionMesa, PuntuacionRestaurante, PuntuacionMozo, PuntuacionCocinero, Comentarios) 
-        VALUES (:idMesa, :idPedido, :idEmpleado, :puntuacionMesa, :puntuacionRestaurante, :puntuacionMozo, :puntuacionCocinero, :comentarios)");
+        encuestas (IdMesa, IdPedido, PuntuacionMesa, PuntuacionRestaurante, PuntuacionMozo, PuntuacionCocinero, Comentarios) 
+        VALUES (:idMesa, :idPedido, :puntuacionMesa, :puntuacionRestaurante, :puntuacionMozo, :puntuacionCocinero, :comentarios)");
 
         $consulta->bindValue(':idMesa', $encuesta->idMesa, PDO::PARAM_INT);
         $consulta->bindValue(':idPedido', $encuesta->idPedido, PDO::PARAM_INT);
-        $consulta->bindValue(':idEmpleado', $encuesta->puntuacionMesa, PDO::PARAM_INT);
-        $consulta->bindValue(':puntuacionMesa', $encuesta->estadoId, PDO::PARAM_INT);
+        $consulta->bindValue(':puntuacionMesa', $encuesta->puntuacionMesa, PDO::PARAM_INT);
         $consulta->bindValue(':puntuacionRestaurante', $encuesta->puntuacionRestaurante, PDO::PARAM_INT);
         $consulta->bindValue(':puntuacionMozo', $encuesta->puntuacionMozo, PDO::PARAM_INT);
         $consulta->bindValue(':puntuacionCocinero', $encuesta->puntuacionCocinero, PDO::PARAM_INT);

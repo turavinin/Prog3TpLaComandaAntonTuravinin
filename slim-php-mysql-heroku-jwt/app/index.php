@@ -108,7 +108,7 @@ $app->group('/pedidos-productos', function (RouteCollectorProxy $group) {
 
 $app->group('/encuesta', function (RouteCollectorProxy $group) {
   $group->post('[/]', \EncuestaController::class . ':AltaEncuesta');
-  $group->get('[/]', \EncuestaController::class . ':MejoresEncuestas');
+  $group->get('[/]', \EncuestaController::class . ':MejoresEncuestas')->add(\Logger::class . ':VerificarCredenciales');
 });
 
 $app->run();

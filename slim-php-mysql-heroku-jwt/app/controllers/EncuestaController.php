@@ -34,7 +34,7 @@ class EncuestaController extends Encuesta
             }
 
             $id = Encuesta::CrearEncuesta($encuesta);
-            $payload = json_encode(array('Respuesta' => "El cambio de estado se realizo con exito.", 'Id' => $id));
+            $payload = json_encode(array('Respuesta' => "La encuesta se creo con exito.", 'Id' => $id));
         } 
         catch (Exception $ex) 
         {
