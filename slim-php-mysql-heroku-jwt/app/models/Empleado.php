@@ -12,6 +12,23 @@ class Empleado
     public $usuario;
     public $clave;
 
+    public static function Validar($usuario)
+    {
+        $mensajesError = array();
+
+        if(empty(str_replace(' ', '', $usuario)))
+        {
+            array_push($mensajesError, "Usuario invalido.");
+        }
+
+        if(Empleado::ObtenerUsuario($usuario) != null && count($mensajesError) < 1)
+        {
+            array_push($mensajesError, "El usuario". $usuario . " ya existe.");
+        }
+
+        return $mensajesError;
+    }
+
     public function CrearEmpleado()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
@@ -168,5 +185,56 @@ class Empleado
         }
 
         return false;
+    }
+
+    public static function ToString($empleado)
+    {
+        return "| Id: " . $empleado->id . " | TipoEmpleado: " . $empleado->tipoEmpleado . " | Estado: " . $empleado->estado . " | Usuario: " . $empleado->usuario;
+    }
+
+    public static function GuardarToCSV($lista, $path)
+    {
+        $array = array();
+
+        foreach ($lista as $key => $empleado) 
+        {
+            array_push($array, array($empleado->id, $empleado->idTipoEmpleado, $empleado->idEstado, $empleado->usuario, $empleado->clave));
+        }
+
+        $total = count($array);
+
+        if($total > 0)
+        {
+            $file = fopen($path, "wb");
+
+            foreach($array as $key=>$stringArr)
+            {
+                fputcsv($file, $stringArr);
+            }
+        
+            fclose($file);
+        }
+    }
+
+    public static function CargarArchivoCSV($pathCSV)
+    {
+        $lista = array();
+        $fila = 1;
+        if (($gestor = fopen($pathCSV, "r")) !== FALSE) 
+        {
+            while (($datos = fgetcsv($gestor, 1000, ",")) !== FALSE) 
+            {
+                $empleado = new Empleado();
+                $empleado->id = $datos[0];
+                $empleado->idTipoEmpleado = $datos[1];
+                $empleado->idEstado = $datos[2];
+                $empleado->usuario = $datos[3];
+                $empleado->clave = $datos[4];
+                array_push($lista, $empleado);
+            }
+            fclose($gestor);
+        }
+
+        return $lista;
     }
 }

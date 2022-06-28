@@ -63,10 +63,13 @@ $app->group('/autentificacion', function (RouteCollectorProxy $group) {
 
 // API
 $app->group('/empleados', function (RouteCollectorProxy $group) {
-  $group->get('[/]', \EmpleadosController::class . ':TraerTodos');
-  $group->get('/{usuario}', \EmpleadosController::class . ':TraerUno');
-  $group->post('[/]', \EmpleadosController::class . ':CargarUno');
-})->add(\Logger::class . ':VerificarCredenciales');
+  $group->get('[/]', \EmpleadosController::class . ':TraerTodos')->add(\Logger::class . ':VerificarCredenciales');
+  $group->get('/csv', \EmpleadosController::class . ':ObtenerCSV');
+  $group->get('/pdf', \EmpleadosController::class . ':ObtenerPDF');
+  $group->get('/{usuario}', \EmpleadosController::class . ':TraerUno')->add(\Logger::class . ':VerificarCredenciales');
+  $group->post('[/]', \EmpleadosController::class . ':CargarUno')->add(\Logger::class . ':VerificarCredenciales');
+  $group->post('/cargar/csv', \EmpleadosController::class . ':CargarCSV');
+});
 
 $app->group('/cliente', function (RouteCollectorProxy $group) {
   $group->post('[/]', \ClientesController::class . ':CargarUno')->add(\Logger::class . ':VerificarCredenciales');;
