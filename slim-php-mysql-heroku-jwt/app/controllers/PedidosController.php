@@ -181,17 +181,4 @@ class PedidosController extends Pedido implements IApiUsable
         return $response
           ->withHeader('Content-Type', 'application/json');
     }
-
-    public function DescargarCSV($request, $response, $args)
-    {
-      $lista = Pedido::ObtenerTodos();
-
-      Pedido::GuardarPedidoToCSV($lista, "./pedidos.csv");
-
-
-      $payload = json_encode(array("se hizo" => "si"));
-
-      $response->getBody()->write($payload);
-      return $response->withHeader('Content-Type', 'application/json');
-    }
 }

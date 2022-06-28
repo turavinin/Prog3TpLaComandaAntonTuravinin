@@ -133,41 +133,6 @@ class Pedido
         return substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, $largo); 
     }
 
-    private static function PedidoToCSV($pedido)
-    {
-        return "$pedido->id,$pedido->idMesa,$pedido->codigo,$pedido->minutosTotalesPreparacion,$pedido->fechaAlta". PHP_EOL;
-    }
-
-    public static function GuardarPedidoToCSV($pedidos, $path)
-    {
-        
-        $pedidosCSV = array();
-
-        foreach ($pedidos as $key => $pedido) 
-        {
-            array_push($pedidosCSV, Pedido::PedidoToCSV($pedido));
-        }
-
-        $totalPedidos = count($pedidosCSV);
-
-        if($totalPedidos > 0)
-        {
-            $file = fopen($path, "wb");
-    
-            foreach($pedidosCSV as $key=>$pedidoString)
-            {
-                fwrite($file, $pedidoString);
-                
-                if($key != $totalPedidos - 1) 
-                {
-                    fwrite($file, "". PHP_EOL);
-                }
-            }
-        
-            fclose($file);
-        }
-    }
-
     public static function PutPedido($pedido)
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();

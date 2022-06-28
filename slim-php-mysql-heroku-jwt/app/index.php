@@ -82,14 +82,16 @@ $app->group('/mesas', function (RouteCollectorProxy $group) {
 })->add(\Logger::class . ':VerificarCredenciales');
 
 $app->group('/productos', function (RouteCollectorProxy $group) {
-  $group->get('[/]', \ProductosController::class . ':TraerTodos');
-  $group->post('[/]', \ProductosController::class . ':CargarUno');
-})->add(\Logger::class . ':VerificarCredenciales');
+  $group->get('[/]', \ProductosController::class . ':TraerTodos')->add(\Logger::class . ':VerificarCredenciales');
+  $group->post('[/]', \ProductosController::class . ':CargarUno')->add(\Logger::class . ':VerificarCredenciales');
+  $group->get('/pdf', \ProductosController::class . ':ObtenerPDF');
+  $group->get('/csv', \ProductosController::class . ':ObtenerCSV');
+  $group->post('/cargar/csv', \ProductosController::class . ':CargarCSV');
+});
 
 $app->group('/pedidos', function (RouteCollectorProxy $group) {
   $group->get('[/]', \PedidosController::class . ':TraerTodos');
   $group->get('/{codigo}', \PedidosController::class . ':TraerUno');
-  // $group->get('/csv/descarga', \PedidosController::class . ':DescargarCSV');
   $group->post('[/]', \PedidosController::class . ':CargarUno');
   $group->post('/cobrar', \PedidosController::class . ':Cobrar');
   $group->post('/estado/cerrar', \PedidosController::class . ':CerrarPedidoMesa');

@@ -9,6 +9,11 @@ class Producto
     public $precio;
     public $minutosPreparacion;
 
+    public static function ToString($producto)
+    {
+        return "|Id: " . $producto->id . "| Descripcion: " . $producto->descripcion . "| Precio: " . $producto->precio;
+    }
+
     public static function ObtenerTodos()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
@@ -84,5 +89,56 @@ class Producto
         }
 
         return $minutosTotales;
+    }
+
+    private static function ProductoToCSV($producto)
+    {
+        return "$producto->id".","."$producto->idTipoEmpleado".","."$producto->descripcion".","."$producto->precio".","."$producto->minutosPreparacion";
+    }
+
+    public static function GuardarProductoToCSV($productos, $path)
+    {
+        $productosArr = array();
+
+        foreach ($productos as $key => $producto) 
+        {
+            array_push($productosArr, array($producto->id, $producto->idTipoEmpleado, $producto->descripcion, $producto->precio, $producto->minutosPreparacion));
+        }
+
+        $total = count($productosArr);
+
+        if($total > 0)
+        {
+            $file = fopen($path, "wb");
+
+            foreach($productosArr as $key=>$stringArr)
+            {
+                fputcsv($file, $stringArr);
+            }
+        
+            fclose($file);
+        }
+    }
+
+    public static function CargarArchivoCSV($pathCSV)
+    {
+        $listaProductos = array();
+        $fila = 1;
+        if (($gestor = fopen($pathCSV, "r")) !== FALSE) 
+        {
+            while (($datos = fgetcsv($gestor, 1000, ",")) !== FALSE) 
+            {
+                $producto = new Producto();
+                $producto->id = $datos[0];
+                $producto->idTipoEmpleado = $datos[1];
+                $producto->descripcion = $datos[2];
+                $producto->precio = $datos[3];
+                $producto->minutosPreparacion = $datos[4];
+                array_push($listaProductos, $producto);
+            }
+            fclose($gestor);
+        }
+
+        return $listaProductos;
     }
 }
