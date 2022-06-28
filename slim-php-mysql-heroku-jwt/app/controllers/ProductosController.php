@@ -81,18 +81,47 @@ class ProductosController extends Producto
 
     public function CargarCSV($request, $response, $args)
     {
-      $csv = $_FILES['csv'];
-      $listaProductos = Producto::CargarArchivoCSV($csv["tmp_name"]);
+      $payload = null;
 
-      foreach ($listaProductos as $key => $producto) 
+      try 
       {
-        $nuevoId = $producto->CrearProducto();
-        $producto->id = $nuevoId;
+        $csv = $_FILES['csv'];
+        $listaProductos = Producto::CargarArchivoCSV($csv["tmp_name"]);
+        $errores = null;
+  
+        foreach ($listaProductos as $key => $producto) 
+        {
+          $errores = Producto::Validar($producto->descripcion);
+        }
+  
+        if(count($errores) > 0)
+        {
+          throw new Exception(json_encode($errores), 800);
+        }
+  
+        foreach ($listaProductos as $key => $producto) 
+        {
+          $nuevoId = $producto->CrearProducto();
+          $producto->id = $nuevoId;
+        }
+  
+        $payload = json_encode(array("listaProductos" => $listaProductos));
+      } 
+      catch (Exception $ex) 
+      {
+          $mensaje = $ex->getMessage();
+
+          if($ex->getCode() == 800)
+          {
+              $mensaje = json_decode($ex->getMessage());
+          }
+
+          $payload = json_encode(array('Error' => $mensaje));
       }
-
-      $payload = json_encode(array("listaProductos" => $listaProductos));
-
-      $response->getBody()->write($payload);
-      return $response->withHeader('Content-Type', 'application/json');
+      finally
+      {
+          $response->getBody()->write($payload);
+          return $response->withHeader('Content-Type', 'application/json');
+      }
     }
 }

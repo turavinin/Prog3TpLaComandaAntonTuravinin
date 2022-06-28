@@ -14,6 +14,23 @@ class Producto
         return "|Id: " . $producto->id . "| Descripcion: " . $producto->descripcion . "| Precio: " . $producto->precio;
     }
 
+    public static function Validar($descripcion)
+    {
+        $mensajesError = array();
+
+        if(empty(str_replace(' ', '', $descripcion)))
+        {
+            array_push($mensajesError, "Descripcion invalida.");
+        }
+
+        if(Producto::ObtenerPorDescripcion($descripcion) != null && count($mensajesError) < 1)
+        {
+            array_push($mensajesError, "El producto". $descripcion . " ya existe.");
+        }
+
+        return $mensajesError;
+    }
+
     public static function ObtenerTodos()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
@@ -45,6 +62,25 @@ class Producto
         INNER JOIN tipoempleado TE ON TE.Id = P.IdTipoEmpleado
         WHERE P.Id = :idProducto");
         $consulta->bindValue(':idProducto', $idProducto, PDO::PARAM_INT);
+        $consulta->execute();
+
+        return $consulta->fetchObject('Producto');
+    }
+
+    public static function ObtenerPorDescripcion($descripcion)
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("SELECT 
+        P.Id as id,
+        P.IdTipoEmpleado as idTipoEmpleado,
+        TE.Tipo as tipoEmpleado,
+        P.Descripcion as descripcion,
+        P.Precio as precio,
+        P.MinutosPreparacion as minutosPreparacion
+        FROM productos P
+        INNER JOIN tipoempleado TE ON TE.Id = P.IdTipoEmpleado
+        WHERE P.Descripcion = :descripcion");
+        $consulta->bindValue(':descripcion', $descripcion, PDO::PARAM_STR);
         $consulta->execute();
 
         return $consulta->fetchObject('Producto');
