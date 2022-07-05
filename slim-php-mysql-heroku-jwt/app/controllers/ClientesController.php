@@ -50,13 +50,12 @@ class ClientesController extends Cliente
     {
         $parametros = $request->getQueryParams();
         $codigoPedido = $parametros['codigoPedido'];
-        $codigoMesa = $parametros['codigoMesa'];
 
         try 
         {
             $pedido = Pedido::ObtenerPorCodigo($codigoPedido);
-            $mesa = Mesa::ObtenerPorCodigo($codigoMesa);
-            if($pedido == null || $mesa == null)
+
+            if($pedido == null)
             {
                 throw new Exception("No se encontró pedido buscado.");
             }

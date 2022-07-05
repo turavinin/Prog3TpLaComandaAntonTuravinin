@@ -34,6 +34,8 @@ class EncuestaController extends Encuesta
             }
 
             $id = Encuesta::CrearEncuesta($encuesta);
+            $cliente = Cliente::ObtenerClientePorPedido($idPedido);
+            Cliente::EditarIdEncuesta($cliente->id, $id);
             $payload = json_encode(array('Respuesta' => "La encuesta se creo con exito.", 'Id' => $id));
         } 
         catch (Exception $ex) 

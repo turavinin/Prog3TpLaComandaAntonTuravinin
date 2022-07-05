@@ -72,8 +72,8 @@ $app->group('/empleados', function (RouteCollectorProxy $group) {
 });
 
 $app->group('/cliente', function (RouteCollectorProxy $group) {
-  $group->post('[/]', \ClientesController::class . ':CargarUno')->add(\Logger::class . ':VerificarCredenciales');;
   $group->get('/pedido', \ClientesController::class . ':PedidoTiempoPreparacion');
+  $group->post('[/]', \ClientesController::class . ':CargarUno')->add(\Logger::class . ':VerificarCredenciales');
 });
 
 $app->group('/mesas', function (RouteCollectorProxy $group) {
@@ -86,9 +86,9 @@ $app->group('/mesas', function (RouteCollectorProxy $group) {
 
 $app->group('/productos', function (RouteCollectorProxy $group) {
   $group->get('[/]', \ProductosController::class . ':TraerTodos')->add(\Logger::class . ':VerificarCredenciales');
-  $group->post('[/]', \ProductosController::class . ':CargarUno')->add(\Logger::class . ':VerificarCredenciales');
   $group->get('/pdf', \ProductosController::class . ':ObtenerPDF');
   $group->get('/csv', \ProductosController::class . ':ObtenerCSV');
+  $group->post('[/]', \ProductosController::class . ':CargarUno')->add(\Logger::class . ':VerificarCredenciales');
   $group->post('/cargar/csv', \ProductosController::class . ':CargarCSV');
 });
 

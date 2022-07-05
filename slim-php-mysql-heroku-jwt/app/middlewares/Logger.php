@@ -19,6 +19,7 @@ class Logger
         $method = $request->getMethod();
         $errores = "";
 
+        
         try 
         {
             $headerAuth = $request->getHeaderLine('Authorization');
@@ -90,6 +91,8 @@ class Logger
             case '/mesas/estadistica/usadas':
                 return Logger::UsuarioAutorizado($token, array(self::$idSocio));
                 break;
+            default:
+                return Logger::UsuarioAutorizado($token, array(self::$idSocio, self::$idMozo));
                 
         }
     }
@@ -125,6 +128,8 @@ class Logger
             case '/pedidos-productos/estado/empleado':
                 return Logger::UsuarioAutorizado($token, array(self::$idSocio, self::$idCervecero, self::$idCocinero, self::$idBartender));
                 break;
+            default:
+                return Logger::UsuarioAutorizado($token, array(self::$idSocio, self::$idMozo));
         }
     }
 

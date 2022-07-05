@@ -33,7 +33,7 @@ class AutentificadorJWT
         $ahora = time();
         $payload = array(
             'iat' => $ahora,
-            'exp' => $ahora + (60000),
+            'exp' => $ahora + (9999999999999999999999999999999999999999999),
             'aud' => self::Aud(),
             'data' => $datos,
             'app' => "JWT"

@@ -38,6 +38,24 @@ class Cliente
         return $consulta->fetchObject('Cliente');
     }
 
+    public static function ObtenerClientePorPedido($idPedido)
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("SELECT 
+        CL.Id as id,
+        CL.IdPedido as idPedido,
+        CL.CodigoPedido as codigoPedido,
+        CL.IdEncuesta as idEncuesta,
+        CL.Nombre as nombre
+        FROM clientes CL
+        WHERE CL.IdPedido = :idPedido");
+
+        $consulta->bindValue(':idPedido', $idPedido, PDO::PARAM_INT);
+        $consulta->execute();
+
+        return $consulta->fetchObject('Cliente');
+    }
+
     public function CrearCliente()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();

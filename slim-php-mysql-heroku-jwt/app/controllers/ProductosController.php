@@ -5,39 +5,84 @@ require_once './helpers/fpdf/fpdf.php';
 
 class ProductosController extends Producto
 {
+    public function TraerTodos($request, $response, $args)
+    {
+      $payload = null;
+
+      try 
+      {
+        $lista = Producto::ObtenerTodos();
+
+        if(count($lista) < 1)
+        {
+          throw new Exception("No se encontraron productos.");
+        }
+
+        $payload = json_encode(array("productos" => $lista));
+      } 
+      catch (Exception $ex) 
+      {
+        $mensaje = $ex->getMessage();
+
+        if($ex->getCode() == 800)
+        {
+            $mensaje = json_decode($ex->getMessage());
+        }
+      
+        $payload = json_encode(array('Error' => $mensaje));
+      }
+      finally
+      {
+        $response->getBody()->write($payload);
+        return $response->withHeader('Content-Type', 'application/json');
+      }
+    }
+
     public function CargarUno($request, $response, $args)
     {
-        $parametros = $request->getParsedBody();
+      $parametros = $request->getParsedBody();
 
-        $idTipoEmpleado = $parametros['idTipoEmpleado'];
-        $descripcion = $parametros['descripcion'];
-        $precio = $parametros['precio'];
-        $minutosPreparacion = $parametros['minutosPreparacion'];
+      $idTipoEmpleado = $parametros['idTipoEmpleado'];
+      $descripcion = $parametros['descripcion'];
+      $precio = $parametros['precio'];
+      $minutosPreparacion = $parametros['minutosPreparacion'];
+
+      $payload = null;
+
+      try 
+      {
+        $erroresValidacion = Producto::Validar($descripcion);
+
+        if(count($erroresValidacion) > 0)
+        {
+          throw new Exception(json_encode($erroresValidacion), 800);
+        }
 
         $producto = new Producto();
         $producto->idTipoEmpleado = $idTipoEmpleado;
         $producto->descripcion = $descripcion;
         $producto->precio = $precio;
         $producto->minutosPreparacion = $minutosPreparacion;
-
         $nuevoId = $producto->CrearProducto();
 
         $payload = json_encode(array("mensaje" => "Producto creado con exito", "id" => $nuevoId));
+      } 
+      catch (Exception $ex) 
+      {
+        $mensaje = $ex->getMessage();
 
+        if($ex->getCode() == 800)
+        {
+            $mensaje = json_decode($ex->getMessage());
+        }
+
+        $payload = json_encode(array('Error' => $mensaje));
+      }
+      finally
+      {
         $response->getBody()->write($payload);
-        return $response
-          ->withHeader('Content-Type', 'application/json');
-
-    }
-
-    public function TraerTodos($request, $response, $args)
-    {
-        $lista = Producto::ObtenerTodos();
-        $payload = json_encode(array("listaProductos" => $lista));
-
-        $response->getBody()->write($payload);
-        return $response
-          ->withHeader('Content-Type', 'application/json');
+        return $response->withHeader('Content-Type', 'application/json');
+      }
     }
 
     public function ObtenerPDF($request, $response, $args)

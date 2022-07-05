@@ -2,51 +2,125 @@
 require_once './models/Empleado.php';
 require_once './interfaces/IApiUsable.php';
 
-class EmpleadosController extends Empleado implements IApiUsable
+class EmpleadosController extends Empleado
 {
+    public function TraerTodos($request, $response, $args)
+    {
+      $payload = null;
+
+      try 
+      {
+        $lista = Empleado::ObtenerTodos();
+
+        if(count($lista) < 1)
+        {
+          throw new Exception("No se encontraron empleados.");
+        }
+
+        $payload = json_encode(array("empleados" => $lista));
+      } 
+      catch (Exception $ex) 
+      {
+        $mensaje = $ex->getMessage();
+
+        if($ex->getCode() == 800)
+        {
+            $mensaje = json_decode($ex->getMessage());
+        }
+        
+        $payload = json_encode(array('Error' => $mensaje));
+      }
+      finally
+      {
+        $response->getBody()->write($payload);
+        return $response->withHeader('Content-Type', 'application/json');
+      }
+    }
+
+    public function TraerUno($request, $response, $args)
+    {
+        $usuario = $args['usuario'];
+        $payload = null;
+        
+        try 
+        {
+          if(empty(str_replace(' ', '', $usuario)))
+          {
+            throw new Exception("Usuario ingresado es inválido.");
+          }
+
+          $empleado = Empleado::ObtenerUsuario($usuario);
+
+          if($empleado == false)
+          {
+            throw new Exception("No existe el usuario " . $usuario);
+          }
+
+          $payload = json_encode($empleado);
+        } 
+        catch (Exception $ex) 
+        {
+          $mensaje = $ex->getMessage();
+
+          if($ex->getCode() == 800)
+          {
+              $mensaje = json_decode($ex->getMessage());
+          }
+
+          $payload = json_encode(array('Error' => $mensaje));
+        }
+        finally
+        {
+          $response->getBody()->write($payload);
+          return $response->withHeader('Content-Type', 'application/json');
+        }
+    }
+
     public function CargarUno($request, $response, $args)
     {
-        $parametros = $request->getParsedBody();
+      $parametros = $request->getParsedBody();
 
-        $idTipoEmpleado = $parametros['idTipoEmpleado'];
-        $idEstado = $parametros['idEstado'];
-        $usuario = $parametros['usuario'];
-        $clave = $parametros['clave'];
+      $idTipoEmpleado = $parametros['idTipoEmpleado'];
+      $idEstado = $parametros['idEstado'];
+      $usuario = $parametros['usuario'];
+      $clave = $parametros['clave'];
+
+      $payload = null;
+
+      try 
+      {
+        $erroresValidacion = Empleado::Validar($usuario);
+
+        if(count($erroresValidacion) > 0)
+        {
+          throw new Exception(json_encode($erroresValidacion), 800);
+        }
 
         $empleado = new Empleado();
         $empleado->idTipoEmpleado = $idTipoEmpleado;
         $empleado->idEstado = $idEstado;
         $empleado->usuario = $usuario;
         $empleado->clave = $clave;
-
         $nuevoId = $empleado->CrearEmpleado();
 
         $payload = json_encode(array("mensaje" => "Empleado creado con exito", "id" => $nuevoId));
+      } 
+      catch (Exception $ex) 
+      {
+        $mensaje = $ex->getMessage();
 
+        if($ex->getCode() == 800)
+        {
+            $mensaje = json_decode($ex->getMessage());
+        }
+
+        $payload = json_encode(array('Error' => $mensaje));
+      }
+      finally
+      {
         $response->getBody()->write($payload);
-        return $response
-          ->withHeader('Content-Type', 'application/json');
-    }
-
-    public function TraerUno($request, $response, $args)
-    {
-        $usuario = $args['usuario'];
-        $empleado = Empleado::ObtenerUsuario($usuario);
-        $payload = json_encode($empleado);
-
-        $response->getBody()->write($payload);
-        return $response
-          ->withHeader('Content-Type', 'application/json');
-    }
-
-    public function TraerTodos($request, $response, $args)
-    {
-        $lista = Empleado::ObtenerTodos();
-        $payload = json_encode(array("listaEmpleado" => $lista));
-
-        $response->getBody()->write($payload);
-        return $response
-          ->withHeader('Content-Type', 'application/json');
+        return $response->withHeader('Content-Type', 'application/json');
+      }
     }
 
     public function ObtenerPDF($request, $response, $args)
@@ -133,4 +207,30 @@ class EmpleadosController extends Empleado implements IApiUsable
           return $response->withHeader('Content-Type', 'application/json');
       }
     }
+
+
+
+        // public function CargarUno($request, $response, $args)
+    // {
+    //     $parametros = $request->getParsedBody();
+
+    //     $idTipoEmpleado = $parametros['idTipoEmpleado'];
+    //     $idEstado = $parametros['idEstado'];
+    //     $usuario = $parametros['usuario'];
+    //     $clave = $parametros['clave'];
+
+    //     $empleado = new Empleado();
+    //     $empleado->idTipoEmpleado = $idTipoEmpleado;
+    //     $empleado->idEstado = $idEstado;
+    //     $empleado->usuario = $usuario;
+    //     $empleado->clave = $clave;
+
+    //     $nuevoId = $empleado->CrearEmpleado();
+
+    //     $payload = json_encode(array("mensaje" => "Empleado creado con exito", "id" => $nuevoId));
+
+    //     $response->getBody()->write($payload);
+    //     return $response
+    //       ->withHeader('Content-Type', 'application/json');
+    // }
 }
